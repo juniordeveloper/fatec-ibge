@@ -1,26 +1,119 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
+        
+        <!-- Bootstrap CSS -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+        
+        <!-- Original CSS -->
         <link rel="stylesheet" href="css/leaflet.css">
         <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
         <link rel="stylesheet" href="css/qgis2web.css">
         <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        
         <style>
+        body {
+            padding: 0;
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa;
+        }
+        
+        .navbar {
+            background-color: #343a40;
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        
+        #map-container {
+            position: relative;
+            height: calc(100vh - 56px);
+            width: 100%;
+            padding: 0;
+        }
+        
         #map {
-            width: 1620px;
-            height: 880px;
+            height: 100%;
+            width: 100%;
+        }
+        
+        .map-overlay {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .leaflet-popup-content {
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        .leaflet-popup-content table {
+            width: 100%;
+        }
+        
+        .leaflet-popup-content td {
+            padding: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            #map-container {
+                height: calc(100vh - 56px);
+            }
         }
         </style>
-        <title></title>
+        
+        <title>Silvio Fatec</title>
     </head>
     <body>
-        <div id="map">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">Silvio Fatec</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#">Mapa</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Unidades</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Sobre</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Map Container -->
+        <div id="map-container" class="container-fluid p-0">
+            <div id="map"></div>
+            <div class="map-overlay d-none d-md-block">
+                <h5>FATECs no Estado de São Paulo</h5>
+                <p class="mb-0">Clique nos pontos para informações</p>
+            </div>
         </div>
+        
+        <!-- Bootstrap Bundle with Popper -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+        
+        <!-- Original Scripts -->
         <script src="js/qgis2web_expressions.js"></script>
         <script src="js/leaflet.js"></script>
         <script src="js/L.Control.Layers.Tree.min.js"></script>
@@ -75,36 +168,26 @@
         function setBounds() {
         }
         function pop_SP_Municipios_2024_0(feature, layer) {
-            var popupContent = '<table>\
+            var popupContent = '<table class="table table-striped">\
                     <tr>\
-                        <td colspan="2">' + (feature.properties['CD_MUN'] !== null ? autolinker.link(String(feature.properties['CD_MUN']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                        <td><strong>Código Município:</strong></td>\
+                        <td>' + (feature.properties['CD_MUN'] !== null ? autolinker.link(String(feature.properties['CD_MUN']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <td colspan="2">' + (feature.properties['CD_UF'] !== null ? autolinker.link(String(feature.properties['CD_UF']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                        <td><strong>Nome UF:</strong></td>\
+                        <td>' + (feature.properties['NM_UF'] !== null ? autolinker.link(String(feature.properties['NM_UF']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <td colspan="2">' + (feature.properties['NM_UF'] !== null ? autolinker.link(String(feature.properties['NM_UF']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                        <td><strong>Sigla UF:</strong></td>\
+                        <td>' + (feature.properties['SIGLA_UF'] !== null ? autolinker.link(String(feature.properties['SIGLA_UF']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <td colspan="2">' + (feature.properties['SIGLA_UF'] !== null ? autolinker.link(String(feature.properties['SIGLA_UF']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                        <td><strong>Região:</strong></td>\
+                        <td>' + (feature.properties['NM_REGIA'] !== null ? autolinker.link(String(feature.properties['NM_REGIA']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <td colspan="2">' + (feature.properties['CD_REGIA'] !== null ? autolinker.link(String(feature.properties['CD_REGIA']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['NM_REGIA'] !== null ? autolinker.link(String(feature.properties['NM_REGIA']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['SIGLA_RG'] !== null ? autolinker.link(String(feature.properties['SIGLA_RG']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['CD_CONCU'] !== null ? autolinker.link(String(feature.properties['CD_CONCU']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['NM_CONCU'] !== null ? autolinker.link(String(feature.properties['NM_CONCU']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['AREA_KM2'] !== null ? autolinker.link(String(feature.properties['AREA_KM2']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                        <td><strong>Área (km²):</strong></td>\
+                        <td>' + (feature.properties['AREA_KM2'] !== null ? autolinker.link(String(feature.properties['AREA_KM2']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                 </table>';
             var content = removeEmptyRowsFromPopupContent(popupContent, feature);
@@ -223,27 +306,25 @@
         bounds_group.addLayer(layer_SP_Municipios_2024_0);
         map.addLayer(layer_SP_Municipios_2024_0);
         function pop_FATEC_1(feature, layer) {
-            var popupContent = '<table>\
+            var popupContent = '<table class="table table-striped">\
                     <tr>\
-                        <td colspan="2">' + (feature.properties['Nome'] !== null ? autolinker.link(String(feature.properties['Nome']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                        <th colspan="2" class="bg-dark text-white">' + (feature.properties['Nome'] !== null ? autolinker.link(String(feature.properties['Nome']).replace(/'/g, '\'').toLocaleString()) : '') + '</th>\
                     </tr>\
                     <tr>\
-                        <td colspan="2">' + (feature.properties['Endereco'] !== null ? autolinker.link(String(feature.properties['Endereco']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                        <td><strong>Endereço:</strong></td>\
+                        <td>' + (feature.properties['Endereco'] !== null ? autolinker.link(String(feature.properties['Endereco']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <td colspan="2">' + (feature.properties['Bairro'] !== null ? autolinker.link(String(feature.properties['Bairro']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                        <td><strong>Bairro:</strong></td>\
+                        <td>' + (feature.properties['Bairro'] !== null ? autolinker.link(String(feature.properties['Bairro']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <td colspan="2">' + (feature.properties['Cidade'] !== null ? autolinker.link(String(feature.properties['Cidade']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                        <td><strong>Cidade:</strong></td>\
+                        <td>' + (feature.properties['Cidade'] !== null ? autolinker.link(String(feature.properties['Cidade']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <td colspan="2">' + (feature.properties['CEP'] !== null ? autolinker.link(String(feature.properties['CEP']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['Lat'] !== null ? autolinker.link(String(feature.properties['Lat']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['Long'] !== null ? autolinker.link(String(feature.properties['Long']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                        <td><strong>CEP:</strong></td>\
+                        <td>' + (feature.properties['CEP'] !== null ? autolinker.link(String(feature.properties['CEP']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                 </table>';
             var content = removeEmptyRowsFromPopupContent(popupContent, feature);
@@ -256,7 +337,7 @@
         function style_FATEC_1_0() {
             return {
                 pane: 'pane_FATEC_1',
-                radius: 4.0,
+                radius: 6.0,
                 opacity: 1,
                 color: 'rgba(255,255,255,1.0)',
                 dashArray: '',
@@ -265,7 +346,7 @@
                 weight: 2.0,
                 fill: true,
                 fillOpacity: 1,
-                fillColor: 'rgba(0,0,0,1.0)',
+                fillColor: 'rgba(220,53,69,1.0)', // Bootstrap danger color for better visibility
                 interactive: true,
             }
         }
@@ -290,6 +371,22 @@
         bounds_group.addLayer(layer_FATEC_1);
         map.addLayer(layer_FATEC_1);
         setBounds();
+        
+        // Add legend
+        var legend = L.control({position: 'bottomleft'});
+        legend.onAdd = function (map) {
+            var div = L.DomUtil.create('div', 'info legend');
+            div.style.backgroundColor = 'white';
+            div.style.padding = '10px';
+            div.style.borderRadius = '5px';
+            div.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.1)';
+            
+            div.innerHTML = '<h6>Legenda</h6>' +
+                '<i style="background: rgba(220,53,69,1.0); width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 5px;"></i> Unidades FATEC<br>';
+            
+            return div;
+        };
+        legend.addTo(map);
         </script>
     </body>
 </html>
